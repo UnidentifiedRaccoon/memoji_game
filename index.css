@@ -1,0 +1,178 @@
+:root {
+    --site-background-color: #CFD0CF;
+    --text-color: #434343;
+    --first-gradient-color: #22AB93;
+    --second-gradient-color: #19668D;
+    --failure-card-color: #F44336;
+    --success-card-color: #5AD66F;
+}
+
+.visually-hidden {
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    border: 0;
+    padding: 0;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    margin: -1px;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+    font-family: "Arial", sans-serif;
+    font-size: 14px;
+    color: var(--text-color)
+}
+
+body {
+    margin: 0;
+    padding: 0 18px;
+    background-color: var(--site-background-color);
+}
+
+.index-main {
+    margin: 0 auto;
+    max-width: 600px;
+    width: 100%;
+    min-width: 320px;
+}
+
+.index-main__title {
+    margin: 40px 0;
+}
+
+.site-title {
+    width: 100%;
+    font-size: 3rem;
+    line-height: 47px;
+    text-align: center;
+}
+
+.game-section {
+    width: 100%;
+}
+
+.game-cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    list-style: none;
+}
+
+/* Стили карточки */
+.game-cards__item {
+    margin-bottom: 4%;
+}
+
+.flip-card {
+    position: relative;
+    box-sizing: border-box;
+    max-width: 130px;
+    width: 22%;
+    max-height: 130px;
+    padding-bottom: 22%;
+    /*Перспектива разворота карточки в пространстве*/
+    perspective: 600px;
+}
+
+.flip-card__button {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+.flip-card__content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+
+/* Стили псевдоэлементов */
+
+.flip-card__content::before,
+.flip-card__content::after {
+    box-sizing: border-box;
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5);
+    border: 5px solid white;
+    border-radius: 10px;
+    background: white;
+    transition-duration: 1s;
+    transition-timing-function: ease-in-out;
+}
+
+.flip-card__content::before {
+    transform: rotateY(180deg);
+    text-align: center;
+    vertical-align: middle;
+    font-size: 5rem;
+    line-height: 170%;
+}
+/* Изменено вручную для лучшей читаемости*/
+.js-fish + .flip-card__content::before         {content: "🐟";}
+.js-crocodile + .flip-card__content::before    {content: "🐊";}
+.js-octopus + .flip-card__content::before      {content: "🐙";}
+.js-frog + .flip-card__content::before         {content: "🐸";}
+.js-whale + .flip-card__content::before        {content: "🐳";}
+.js-crayfish + .flip-card__content::before     {content: "🦀";}
+
+.flip-card__button + .flip-card__content::after {
+    background: linear-gradient(0.13turn, var(--first-gradient-color), var(--second-gradient-color));
+}
+
+
+/* Стили при клике на карточку .flip-card__button */
+ .js-show-front + .flip-card__content::before {
+    transform: rotateY(360deg);
+}
+
+.js-show-front + .flip-card__content::after {
+    transform: rotateY(180deg);
+}
+
+/*Стили для карточки с success и failure*/
+.js-success + .flip-card__content::before {
+    border-color: var(--success-card-color);
+    background: var(--success-card-color);
+}
+
+.js-failure + .flip-card__content::before {
+    border-color: var(--failure-card-color);
+    background: var(--failure-card-color);
+}
+
+
+
+
+
+
+
+
+
+
+
