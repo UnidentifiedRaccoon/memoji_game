@@ -10,6 +10,30 @@
 <body>
     <main class="index-main">
         <h1 class="index-main__title site-title">Memoji</h1>
+        <div class="modals-outer-wrapper">
+            <article class="modal modal--win js-hidden">
+                <div class="modal__inner-wrapper">
+                    <b>
+                        <span>W</span>
+                        <span>i</span>
+                        <span>n</span>
+                    </b>
+                    <button>Play again</button>
+                </div>
+            </article>
+            <article class="modal modal--lose js-hidden">
+                <div class="modal__inner-wrapper">
+                    <b>
+                        <span>L</span>
+                        <span>o</span>
+                        <span>s</span>
+                        <span>e</span>
+                    </b>
+                    <button>Try again</button>
+                </div>
+
+            </article>
+        </div>
         <section class="index-main__game-section game-section">
             <h2 class="game-section__title visually-hidden">Игровое поле</h2>
             <ul class="game-section__list game-cards">
@@ -72,10 +96,14 @@
                     <div class="flip-card__content"></div>
                 </li>
             </ul>
-
+            <div class="game-section__timer timer">
+                <span class="timer__min">01</span>
+                <span>:</span>
+                <span class="timer__sec">00</span>
+            </div>
         </section>
     </main>
 
 </body>
-<script src="index.js"></script>
+<script type="module" src="index.js"></script>
 </html>

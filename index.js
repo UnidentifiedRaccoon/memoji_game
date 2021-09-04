@@ -1,75 +1,21 @@
-let list = document.querySelector(".game-cards");
-let flipCardsCollection = list.querySelectorAll(".flip-card")
+import FlipCard from './FlipCard.js'
+import Timer from './Timer.js'
 
-let flipCardsEmojiTypeArray =
-    ["frog", "whale", "fish", "octopus",
-        "crayfish", "crocodile", "frog", "whale",
-        "fish", "octopus", "crayfish", "crocodile"];
+// Для обработки карточек
+let list = document.querySelector(".game-cards")
+let cardButtonsCollection = list.querySelectorAll(".flip-card__button")
 
+// Для обработки модальных окон
+let modalsOuterWrapper = document.querySelector('.modals-outer-wrapper')
+let modals = modalsOuterWrapper.querySelectorAll('.modal')
 
-function makeFlipCardClickListener (game, cardObjects) {
-    function flipCardClickHandler(event) {
-        let flipCardJsId = event.target.dataset.jsId;
-        let flipCard = cardObjects[flipCardJsId];
-        flipCard.disabled()
-        flipCard.show()
-        game.checkPair(flipCard)
-
-    }
-
-    list.addEventListener("click", flipCardClickHandler)
-}
-
-class FlipCard {
-    constructor(ButtonElement, ContentElement, type, id) {
-        this.content = ContentElement
-        this.button = ButtonElement;
-        this.type = type;
-        this.addJsClass(type);
-        this.setId(id);
-    }
-
-    addJsClass (str) {
-        this.button.classList.add(`js-${str}`);
-    }
-
-    setId (id) {
-        this.button.setAttribute('data-js-id', id.toString());
-    }
-
-    hide () {
-        this.button.classList.remove('js-show-front')
-    }
-
-    show () {
-        this.button.classList.add('js-show-front')
-    }
-
-    disabled () {
-        this.button.setAttribute('disabled', 'true');
-    }
-
-    enabled () {
-        this.button.removeAttribute('disabled')
-    }
-
-    onSuccess() {
-        this.button.classList.add('js-success');
-    }
-    onFailure () {
-        this.button.classList.add('js-failure');
-        setTimeout(() => {
-            this.hide();
-            this.button.classList.remove('js-failure');
-            this.enabled()
-        }, 1500);
-
-    }
-}
 
 class Game {
     constructor() {
         this.pairs = []
+        this.emojiArr = ["frog", "whale", "fish", "octopus",
+            "crayfish", "crocodile", "frog", "whale",
+            "fish", "octopus", "crayfish", "crocodile"];
     }
 
     shuffle(array) {
@@ -83,28 +29,70 @@ class Game {
         }
     }
 
-    makeGameCards(cardsCollection, emojiArr) {
-        let arr = [];
-        for (let i = 0; i < cardsCollection.length; i++) {
-            let [button, content] = cardsCollection[i].children;
-            let newCard = new FlipCard(button, content, emojiArr[i], i)
-            arr.push(newCard);
+    setGameCardsFirst(buttonsCollection) {
+        this.shuffle(this.emojiArr)
+        this.cardObjects = [];
+        for (let i = 0; i < buttonsCollection.length; i++) {
+            let newCard = new FlipCard(buttonsCollection[i], this.emojiArr[i], i)
+            this.cardObjects.push(newCard);
         }
-        return arr;
+    }
+
+    setClickListenerOnCards() {
+        let _this = this
+        function setCardClickHandler(event) {
+            if (event.target.classList.contains('flip-card__button')) {
+                let flipCardJsId = event.target.dataset.jsId;
+                let flipCard = _this.cardObjects[flipCardJsId];
+                flipCard.disabled()
+                flipCard.show()
+                _this.checkPair(flipCard)
+            }
+        }
+
+        list.addEventListener("click", setCardClickHandler)
+    }
+
+    setTimer() {
+        // Функция вызывается единожды для создания таймера
+        // Далее таймер будет сбрасываться, но не создаваться заново
+        this.timer = new Timer(this)
+    }
+
+    setModals() {
+        this.modalWin = modals[0];
+        this.modalLose = modals[1];
+        modalsOuterWrapper.addEventListener('click', (event) => {
+            if (event.target.tagName === 'BUTTON') {
+                game.reload()
+                // ToDo - game.reload()
+            }
+        })
+    }
+
+    initFirstSession() {
+        this.setGameCardsFirst(cardButtonsCollection)
+        this.setClickListenerOnCards()
+        this.setTimer()
+        this.timer.setStartClickListener(list)
+        this.setModals()
     }
 
     checkPair(flipCardObj) {
-        let isEven = this.pairs.length % 2 === 0
+        let isEven = this.pairs.length % 2 === 0;
 
         if (isEven) { this.pairs.push(flipCardObj) }
         else {
             let prevFlipCardObj = this.pairs[this.pairs.length - 1]
-            let hasEqualTypes = prevFlipCardObj.type === flipCardObj.type
+            let hasEqualTypes = prevFlipCardObj.button.dataset.jsType === flipCardObj.button.dataset.jsType
 
             if (hasEqualTypes) {
                 flipCardObj.onSuccess()
                 prevFlipCardObj.onSuccess()
                 this.pairs.push(flipCardObj)
+                if (this.pairs.length === 12) {
+                    this.win()
+                }
             } else {
                 //  this.pairs.pop() === prevFlipCardObj
                 this.pairs.pop().onFailure()
@@ -112,10 +100,52 @@ class Game {
             }
         }
     }
+
+    win() {
+        this.modalWin.classList.remove("js-hidden")
+        this.timer.stop()
+    }
+
+    lose() {
+        this.modalLose.classList.remove("js-hidden")
+        this.timer.stop()
+    }
+
+    reloadCards() {
+        this.pairs.map(item => {
+            item.button.classList.remove("js-success")
+            item.hide()
+            item.enabled()
+        })
+        this.pairs = []
+        this.shuffle(this.emojiArr)
+        setTimeout(() => {
+            this.cardObjects.map((item, index) => {
+                item.button.dataset.jsType = this.emojiArr[index]
+            })
+        }, 1000)
+
+    }
+
+    reload() {
+        // Сброс карточек
+        game.reloadCards()
+        // Сброс таймера
+        this.timer.reload()
+        // Установка слушателя первого клика, запускающего таймер
+        this.timer.setStartClickListener(list)
+        // Скрытие модальных окон после завершения подготовки новой игры
+        setTimeout(() => {
+            if (!this.modalWin.classList.contains("js-hidden")) {
+                this.modalWin.classList.add("js-hidden")
+            } else {
+                this.modalLose.classList.add("js-hidden")
+            }
+        }, 1500)
+    }
 }
 
 let game = new Game()
-game.shuffle(flipCardsEmojiTypeArray)
-let cardObjects = game.makeGameCards(flipCardsCollection, flipCardsEmojiTypeArray)
-makeFlipCardClickListener(game, cardObjects)
+game.initFirstSession(cardButtonsCollection)
+
 
