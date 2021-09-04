@@ -218,7 +218,13 @@ body {
     color: white;
     background: linear-gradient(0.75turn, var(--first-gradient-color), var(--second-gradient-color));
     border: none;
-    border-radius: 10px
+    border-radius: 10px;
+
+    box-shadow: 1px 1px 1px black;
+}
+
+.modal button:hover {
+    box-shadow: inset 2px 1px 8px black;
 }
 
 /*Анимация слов*/
